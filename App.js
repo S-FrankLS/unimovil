@@ -41,10 +41,7 @@ function NavigationStack() {
           <Stack.Screen
             name="Login"
             component={Login}
-            options={{
-              title: "",
-              headerStyle: { backgroundColor: "#003859" },
-            }}
+            options={{ headerShown: false }}
           />
         )}
       </Stack.Navigator>
