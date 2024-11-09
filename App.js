@@ -23,9 +23,7 @@ function NavigationStack() {
               name="Home"
               component={Home}
               options={{
-                headerStyle: { backgroundColor: "#003859" },
-                headerTintColor: "#fff",
-                headerTitleStyle: { fontWeight: "bold" },
+                headerShown: false
               }}
             />
             <Stack.Screen
