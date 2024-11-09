@@ -8,6 +8,7 @@ import Home from "./screen/Home";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Drivers from "./screen/Drivers";
 import { AuthProvider, useAuth } from "./context/useAuth";
+import { Signup } from "./screen/Signup";
 
 function NavigationStack() {
   const { isAuthenticated } = useAuth();
@@ -22,9 +23,7 @@ function NavigationStack() {
               name="Home"
               component={Home}
               options={{
-                headerStyle: { backgroundColor: "#003859" },
-                headerTintColor: "#fff",
-                headerTitleStyle: { fontWeight: "bold" },
+                headerShown: false
               }}
             />
             <Stack.Screen
@@ -38,14 +37,18 @@ function NavigationStack() {
             />
           </>
         ) : (
-          <Stack.Screen
-            name="Login"
-            component={Login}
-            options={{
-              title: "",
-              headerStyle: { backgroundColor: "#003859" },
-            }}
-          />
+          <>
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="signup"
+              component={Signup}
+              options={{ headerShown: false }}
+            />
+          </>
         )}
       </Stack.Navigator>
     </SafeAreaProvider>
