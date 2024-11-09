@@ -12,14 +12,15 @@ import {
 } from "react-native";
 import "react-native-gesture-handler";
 import { useAuth } from "../context/useAuth";
+import { useNavigation } from "@react-navigation/native";
 
 const icon = require("../assets/UniMovilPNG.png");
-import { SafeAreaView } from "react-native";
 const windowHeight = Dimensions.get("window").height;
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigation();
   const { login } = useAuth();
 
   const handleLogin = async () => {
@@ -72,7 +73,7 @@ const Login = () => {
             <TouchableOpacity
               style={[styles.button, styles.createButton]}
               onPress={() => {
-                /* Handle create account */
+                navigate.navigate("signup");
               }}
             >
               <Text style={styles.buttonText}>Crear cuenta</Text>
