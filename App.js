@@ -19,7 +19,7 @@ function NavigationStack() {
       <Stack.Navigator>
         {isAuthenticated ? (
           <>
-            {user.role === "Rider" ? (
+            {user?.role === "Rider" ? (
               <Stack.Screen
                 name="Home"
                 component={Home}
