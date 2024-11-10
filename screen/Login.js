@@ -2,67 +2,108 @@
 import React, { useState } from "react";
 import {
   View,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Text,
   Image,
-  Alert,
   Dimensions,
 } from "react-native";
-import "react-native-gesture-handler";
 import { useAuth } from "../context/useAuth";
 import { useNavigation } from "@react-navigation/native";
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { loginSchema } from "../utils/validations";
+import { InputField, CustomAlert } from "../components";
 
 const icon = require("../assets/UniMovilPNG.png");
 const windowHeight = Dimensions.get("window").height;
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigation();
+  const navigation = useNavigation();
   const { login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    visible: false,
+    title: "",
+    message: "",
+    type: "success",
+    buttons: [],
+  });
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Por favor ingresa ambos campos");
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(loginSchema),
+    defaultValues: {
+      correo: '',
+      password: '',
+    },
+  });
 
-    const success = await login(email, password);
-    if (!success) {
-      Alert.alert("Error", "Credenciales inválidas");
+  const showAlert = (config) => {
+    setAlertConfig({
+      visible: true,
+      ...config,
+    });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig((prev) => ({ ...prev, visible: false }));
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      setIsLoading(true);
+      const success = await login(data.correo, data.password);
+
+      if (!success) {
+        showAlert({
+          title: "Error",
+          message: "Credenciales inválidas",
+          type: "error",
+          buttons: [{ text: "Entendido", onPress: hideAlert }],
+        });
+      }
+    } catch (error) {
+      showAlert({
+        title: "Error",
+        message: error.message || "Error al iniciar sesión",
+        type: "error",
+        buttons: [{ text: "Entendido", onPress: hideAlert }],
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Inicio de sesión</Text>
       </View>
 
-      {/* Main Content */}
       <View style={styles.content}>
         <Image source={icon} style={styles.logo} />
 
         <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
+          <InputField
+            control={control}
+            errors={errors}
+            name="correo"
             placeholder="Correo institucional"
-            placeholderTextColor="#666"
+            icon="mail"
             keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
           />
 
-          <TextInput
-            style={styles.input}
+          <InputField
+            control={control}
+            errors={errors}
+            name="password"
             placeholder="Contraseña"
-            placeholderTextColor="#666"
-            secureTextEntry={true}
-            value={password}
-            onChangeText={setPassword}
+            icon="lock-closed"
+            secureTextEntry
           />
 
           <TouchableOpacity>
@@ -72,26 +113,28 @@ const Login = () => {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.createButton]}
-              onPress={() => {
-                navigate.navigate("signup");
-              }}
+              onPress={() => navigation.navigate("signup")}
             >
               <Text style={styles.buttonText}>Crear cuenta</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.button, styles.loginButton]}
-              onPress={handleLogin}
+              style={[
+                styles.button,
+                styles.loginButton,
+                isLoading && styles.buttonDisabled
+              ]}
+              onPress={handleSubmit(onSubmit)}
+              disabled={isLoading}
             >
               <Text style={[styles.buttonText, styles.loginButtonText]}>
-                Iniciar sesión
+                {isLoading ? "Iniciando..." : "Iniciar sesión"}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <Text style={styles.footerTitle}>Turing inc.</Text>
         <Text style={styles.footerText}>http://dintev.univalle.edu.co</Text>
@@ -100,6 +143,14 @@ const Login = () => {
           campusvirtual@correounivalle.edu.co
         </Text>
       </View>
+
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+      />
     </View>
   );
 };
@@ -135,16 +186,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: "100%",
     maxWidth: 400,
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#003859",
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    marginBottom: 15,
-    fontSize: 16,
+    gap: 15,
   },
   forgotPassword: {
     color: "#003859",
@@ -163,6 +205,9 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   createButton: {
     backgroundColor: "#5BA199",

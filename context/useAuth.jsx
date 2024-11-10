@@ -67,10 +67,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await authService.login({ email, password });
-      if (response.token && response.user) {
+      if (response.userType) {
         setIsAuthenticated(true);
-        setUser(response.user);
-        await saveAuthData(response.user, response.token);
+        setUser(response.userType);
+        // await saveAuthData(response.user, response.token);
         return true;
       }
       return false;
@@ -83,6 +83,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authService.register(userData);
+      console.log("Registro exitoso:", response);
+
       return response;
     } catch (error) {
       console.error("Error en registro:", error);

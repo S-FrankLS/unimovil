@@ -12,8 +12,10 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { signupSchema } from "../utils/validations";
 import { SelectField } from "../components/SelectField";
+import { useAuth } from "../context/useAuth";
 
 export const Signup = () => {
+  const { register } = useAuth();
   const vehicleTypes = [
     'carro',
     'moto'
@@ -80,7 +82,7 @@ export const Signup = () => {
         code: data.codigo,
         password: data.password,
         is_driver: isConductor,
-        role: 'user',
+        role: 'Estudiante',
         ...(isConductor && {
           vehiclePlate: data.placa,
           vehicleType: data.tipoVehiculo,
@@ -114,6 +116,7 @@ export const Signup = () => {
       setIsLoading(false);
     }
   };
+
 
   return (
     <View style={styles.container}>

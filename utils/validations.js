@@ -62,3 +62,17 @@ export const signupSchema = yup.object().shape({
                 .oneOf(VEHICLE_TYPES, 'Seleccione un tipo de vehículo válido (carro o moto)')
         }),
 });
+
+export const loginSchema = yup.object().shape({
+    correo: yup
+        .string()
+        .required('El correo es requerido')
+        .email('Ingrese un correo válido')
+        .matches(
+            /@correounivalle\.edu\.co$/,
+            'Debe usar un correo institucional (@correounivalle.edu.co)'
+        ),
+    password: yup
+        .string()
+        .required('La contraseña es requerida')
+});

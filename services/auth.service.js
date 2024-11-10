@@ -13,6 +13,8 @@ export const authService = {
     login: async (credentials) => {
         try {
             const response = await axiosInstance.post('/auth/login', credentials);
+            console.log(response);
+
             return response;
         } catch (error) {
             throw error;
