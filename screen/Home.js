@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-const windowHeight = Dimensions.get("window").height;
+
 
 // import { SearchModal } from '../components';
 import { useAuth } from '../context/useAuth';
 import { SearchModal, TripCard, UserModal } from '../components';
+import { windowHeight } from '../utils/Dimenstios';
 
 const Home = ({ navigation }) => {
   const [searchModalVisible, setSearchModalVisible] = useState(false);

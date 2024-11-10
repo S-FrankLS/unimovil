@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login({ email, password });
       if (response.userType) {
         setIsAuthenticated(true);
-        setUser(response.userType);
+        setUser({ role: response.userType });
         await saveAuthData(response.userType, response.token ? response.token : 'this is not a token');
         return true;
       }

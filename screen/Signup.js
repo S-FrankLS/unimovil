@@ -128,12 +128,12 @@ export const Signup = () => {
         <Text style={styles.headerText}>Crear cuenta</Text>
       </View>
       <View style={styles.content}>
-        {__DEV__ && (
+        {/* {__DEV__ && (
           <View style={styles.debugInfo}>
             <Text>Is Conductor: {String(isConductor)}</Text>
             <Text>Form Errors: {JSON.stringify(errors, null, 2)}</Text>
           </View>
-        )}
+        )} */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
