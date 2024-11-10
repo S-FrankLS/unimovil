@@ -50,6 +50,7 @@ export const Signup = () => {
       tipoVehiculo: '',
     },
     context: { isConductor }, // Pasar el estado del conductor al schema
+    mode: 'onChange'
   });
 
   const hideAlert = () => {
@@ -72,13 +73,15 @@ export const Signup = () => {
   }, [isConductor, reset]);
 
   const onSubmit = async (data) => {
+    console.log(data);
+
     try {
       setIsLoading(true);
 
       // Preparar los datos para la API
       const userData = {
         name: `${data.nombre} ${data.apellido}`,
-        email: data.correo,
+        email: data.correo?.trim(),
         code: data.codigo,
         password: data.password,
         is_driver: isConductor,
@@ -120,10 +123,17 @@ export const Signup = () => {
 
   return (
     <View style={styles.container}>
+
       <View style={styles.header}>
         <Text style={styles.headerText}>Crear cuenta</Text>
       </View>
       <View style={styles.content}>
+        {__DEV__ && (
+          <View style={styles.debugInfo}>
+            <Text>Is Conductor: {String(isConductor)}</Text>
+            <Text>Form Errors: {JSON.stringify(errors, null, 2)}</Text>
+          </View>
+        )}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -223,6 +233,8 @@ export const Signup = () => {
             <Text style={styles.createButtonText}>Crear cuenta</Text>
           </TouchableOpacity>
         </View>
+
+
       </View>
 
       <CustomAlert

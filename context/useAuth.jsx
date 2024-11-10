@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Guardar los datos de autenticación en el dispositivo
   const saveAuthData = async (userData, token) => {
     try {
       const authData = {
@@ -70,7 +71,7 @@ export const AuthProvider = ({ children }) => {
       if (response.userType) {
         setIsAuthenticated(true);
         setUser(response.userType);
-        // await saveAuthData(response.user, response.token);
+        await saveAuthData(response.userType, response.token ? response.token : 'this is not a token');
         return true;
       }
       return false;

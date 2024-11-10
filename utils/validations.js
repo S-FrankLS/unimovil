@@ -33,7 +33,8 @@ export const signupSchema = yup.object().shape({
         .min(6, 'El código debe tener al menos 6 dígitos')
         .max(10, 'El código no puede tener más de 10 dígitos'),
 
-    password: yup.string()
+    password: yup
+        .string()
         .required('La contraseña es requerida')
         .min(6, 'La contraseña debe tener al menos 6 caracteres')
         .matches(
@@ -46,22 +47,24 @@ export const signupSchema = yup.object().shape({
         .required('Debe confirmar la contraseña')
         .oneOf([yup.ref('password'), null], 'Las contraseñas no coinciden'),
 
-    // Campos condicionales para conductor
     placa: yup.string().when('$isConductor', {
         is: true,
-        then: yup.string().required('La placa del vehículo es requerida')
+        then: () => yup
+            .string()
+            .required('La placa del vehículo es requerida')
+            .min(6, 'La placa debe tener al menos 6 caracteres'),
+        otherwise: () => yup.string().nullable()
     }),
 
-    tipoVehiculo: yup
-        .string()
-        .when('$isConductor', {
-            is: true,
-            then: yup
-                .string()
-                .required('El tipo de vehículo es requerido')
-                .oneOf(VEHICLE_TYPES, 'Seleccione un tipo de vehículo válido (carro o moto)')
-        }),
-});
+    tipoVehiculo: yup.string().when('$isConductor', {
+        is: true,
+        then: () => yup
+            .string()
+            .required('El tipo de vehículo es requerido')
+            .oneOf(VEHICLE_TYPES, 'Seleccione un tipo de vehículo válido (carro o moto)'),
+        otherwise: () => yup.string().nullable()
+    })
+}).required();
 
 export const loginSchema = yup.object().shape({
     correo: yup
