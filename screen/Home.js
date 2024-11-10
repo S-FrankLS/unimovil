@@ -21,11 +21,11 @@ const Home = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setSearchModalVisible(true)}>
-          <Ionicons name="menu" size={24} color="#000" />
+          <Ionicons name="menu" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Destino: Sede Norte del Cauca</Text>
         <TouchableOpacity onPress={() => setUserModalVisible(true)}>
-          <Ionicons name="person-circle-outline" size={24} color="#000" />
+          <Ionicons name="person-circle-outline" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -71,12 +71,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 15,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#003859',
     paddingTop: 0.07 * windowHeight,
   },
   headerTitle: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#fff',
   },
   content: {
     flex: 1,

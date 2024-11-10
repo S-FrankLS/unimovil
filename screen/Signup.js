@@ -9,46 +9,82 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons"; // Asegúrate de tener expo/vector-icons instalado
+import { CustomAlert } from "../components";
 
 export const Signup = () => {
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    correo: "",
-    codigo: "",
-    password: "",
-    confirmarPassword: "",
+    nombre: '',
+    apellido: '',
+    correo: '',
+    codigo: '',
+    password: '',
+    confirmarPassword: '',
   });
   const [isConductor, setIsConductor] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'success',
+    buttons: []
+  });
+
+  const showAlert = (config) => {
+    setAlertConfig({
+      visible: true,
+      ...config
+    });
+  };
+
+  const hideAlert = () => {
+    setAlertConfig(prev => ({ ...prev, visible: false }));
+  };
 
   const handleCreateAccount = () => {
     // Validaciones básicas
-    if (
-      !formData.nombre ||
-      !formData.apellido ||
-      !formData.correo ||
-      !formData.codigo ||
-      !formData.password ||
-      !formData.confirmarPassword
-    ) {
-      Alert.alert("Error", "Por favor complete todos los campos");
+    if (!formData.nombre || !formData.apellido || !formData.correo ||
+      !formData.codigo || !formData.password || !formData.confirmarPassword) {
+      showAlert({
+        title: 'Error',
+        message: 'Por favor complete todos los campos',
+        type: 'error',
+        buttons: [
+          { text: 'Entendido', onPress: hideAlert }
+        ]
+      });
       return;
     }
 
     if (formData.password !== formData.confirmarPassword) {
-      Alert.alert("Error", "Las contraseñas no coinciden");
+      showAlert({
+        title: 'Error',
+        message: 'Las contraseñas no coinciden',
+        type: 'error',
+        buttons: [
+          { text: 'Entendido', onPress: hideAlert }
+        ]
+      });
       return;
     }
 
     // Aquí iría la lógica para crear la cuenta
-    Alert.alert("Éxito", "Tu cuenta ha sido creada con éxito!", [
-      {
-        text: "Continuar",
-        onPress: () => navigation.navigate("Login"),
-      },
-    ]);
+    showAlert({
+      title: 'Cuenta creada',
+      message: 'Tu cuenta ha sido creada con éxito!',
+      type: 'success',
+      buttons: [
+        {
+          text: 'Continuar',
+          onPress: () => {
+            hideAlert();
+            navigation.navigate('Login');
+          }
+        }
+      ]
+    });
   };
+
 
   return (
     <View style={styles.container}>
@@ -202,6 +238,13 @@ export const Signup = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+      />
     </View>
   );
 };
