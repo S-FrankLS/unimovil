@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { StyleSheet } from 'react-native';
+import ReservationModal from './ReservalModal';
 
 export const TripCard = ({ location, time, seats, vehicleType }) => {
-    return (
+    const [modalVisible, setModalVisible] = useState(false);
+
+    return (<>
         <View style={styles.tripContainer}>
             <Text style={styles.tripLabel}>Lugar de partida:</Text>
             <Text style={styles.tripLocation}>{location}</Text>
@@ -24,15 +27,27 @@ export const TripCard = ({ location, time, seats, vehicleType }) => {
                 <View style={styles.seatsBox}>
                     <Text>{seats}</Text>
                 </View>
-                <TouchableOpacity style={styles.reserveButton}>
+                <TouchableOpacity
+                    style={styles.reserveButton}
+                    onPress={() => setModalVisible(true)}
+                >
                     <Text style={styles.reserveButtonText}>Reservar cupo</Text>
                 </TouchableOpacity>
             </View>
         </View>
+        <ReservationModal
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            onReserve={() => {
+                // Handle reservation logic here
+                setModalVisible(false);
+            }}
+        />
+    </>
     );
 };
 
- const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     tripContainer: {
         backgroundColor: '#f5f5f5',
         padding: 15,

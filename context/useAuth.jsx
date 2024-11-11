@@ -26,7 +26,9 @@ export const AuthProvider = ({ children }) => {
       if (authDataString) {
         const authData = JSON.parse(authDataString);
         setIsAuthenticated(true);
-        setUser(authData.user);
+        setUser({
+          role: authData.user,
+        });
         // Configurar el token en axios
         if (authData.token) {
           axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${authData.token}`;

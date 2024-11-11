@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/v1';
+// const API_URL = 'http://localhost:3000/api/v1';
+// aqui tiene que poner la url de su servidor o el tunel de ngrok o el tunel de vscode
+const API_URL = 'https://eae8-190-108-77-176.ngrok-free.app/api/v1';
 
 // Crear instancia de axios con configuración base
 export const axiosInstance = axios.create({
