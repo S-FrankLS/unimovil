@@ -79,3 +79,12 @@ export const loginSchema = yup.object().shape({
         .string()
         .required('La contraseña es requerida')
 });
+
+export const tripSchema = yup.object().shape({
+    nombreConductor: yup.string().required('El nombre del conductor es requerido'),
+    lugarDestino: yup.string().required('El lugar de destino es requerido'),
+    lugarPartida: yup.string().required('El lugar de partida es requerido'),
+    horaPartida: yup.string().required('La hora de partida es requerida'),
+    costo: yup.number().required('El costo es requerido').positive('El costo debe ser positivo'),
+    numeroCupos: yup.number().required('El número de cupos es requerido').positive('El número debe ser positivo').integer('Debe ser un número entero')
+});

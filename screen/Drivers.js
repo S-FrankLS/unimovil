@@ -4,10 +4,12 @@ import { useAuth } from '../context/useAuth';
 import { SearchModal, UserModal } from '../components';
 import { Ionicons } from '@expo/vector-icons';
 import { windowHeight } from '../utils/Dimenstios';
+import { useNavigation } from '@react-navigation/native';
 
 
 
-const DriverHome = ({ navigation }) => {
+const DriverHome = () => {
+  const navigation = useNavigation();
   const [userModalVisible, setUserModalVisible] = useState(false);
 
   const [searchModalVisible, setSearchModalVisible] = useState(false);
@@ -21,7 +23,7 @@ const DriverHome = ({ navigation }) => {
 
   const handleCreateRoute = () => {
     // Aquí irá la navegación a la pantalla de crear ruta
-    navigation.navigate('CreateRoute');
+    navigation.navigate('createTrip');
   };
 
   const renderContent = () => {

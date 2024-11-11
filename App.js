@@ -9,6 +9,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import DriverHome from "./screen/Drivers";
 import { AuthProvider, useAuth } from "./context/useAuth";
 import { Signup } from "./screen/Signup";
+import CreateTrip from "./screen/createTrip";
 
 function NavigationStack() {
   const { isAuthenticated, user } = useAuth();
@@ -28,13 +29,22 @@ function NavigationStack() {
                 }}
               />
             ) : (
-              <Stack.Screen
-                name="drivers"
-                component={DriverHome}
-                options={{
-                  headerShown: false
-                }}
-              />
+              <>
+                <Stack.Screen
+                  name="drivers"
+                  component={DriverHome}
+                  options={{
+                    headerShown: false
+                  }}
+                />
+                <Stack.Screen
+                  name="createTrip"
+                  component={CreateTrip}
+                  options={{
+                    headerShown: false
+                  }}
+                />
+              </>
             )}
           </>
         ) : (

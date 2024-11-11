@@ -15,6 +15,8 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) => response.data,
     (error) => {
+        console.log('Error en la petición:', error);
+        
         if (error.response) {
             // Error de respuesta del servidor
             throw new Error(error.response.data.message || 'Error en el servidor');
