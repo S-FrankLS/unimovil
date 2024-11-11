@@ -1,65 +1,139 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
+  StyleSheet
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons"; // Asegúrate de tener expo/vector-icons instalado
+import { CustomAlert, InputField } from "../components";
+import { useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { signupSchema } from "../utils/validations";
+import { SelectField } from "../components/SelectField";
+import { useAuth } from "../context/useAuth";
 
 export const Signup = () => {
+  const { register } = useAuth();
+  const vehicleTypes = [
+    'carro',
+    'moto'
+  ];
+
   const navigation = useNavigation();
-  const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    correo: "",
-    codigo: "",
-    password: "",
-    confirmarPassword: "",
-  });
   const [isConductor, setIsConductor] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    visible: false,
+    title: "",
+    message: "",
+    type: "success",
+    buttons: [],
+  });
 
-  const handleCreateAccount = () => {
-    // Validaciones básicas
-    if (
-      !formData.nombre ||
-      !formData.apellido ||
-      !formData.correo ||
-      !formData.codigo ||
-      !formData.password ||
-      !formData.confirmarPassword
-    ) {
-      Alert.alert("Error", "Por favor complete todos los campos");
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm({
+    resolver: yupResolver(signupSchema),
+    defaultValues: {
+      nombre: '',
+      apellido: '',
+      correo: '',
+      codigo: '',
+      password: '',
+      confirmarPassword: '',
+      placa: '',
+      tipoVehiculo: '',
+    },
+    context: { isConductor }, // Pasar el estado del conductor al schema
+    mode: 'onChange'
+  });
 
-    if (formData.password !== formData.confirmarPassword) {
-      Alert.alert("Error", "Las contraseñas no coinciden");
-      return;
-    }
-
-    // Aquí iría la lógica para crear la cuenta
-    Alert.alert("Éxito", "Tu cuenta ha sido creada con éxito!", [
-      {
-        text: "Continuar",
-        onPress: () => navigation.navigate("Login"),
-      },
-    ]);
+  const hideAlert = () => {
+    setAlertConfig((prev) => ({ ...prev, visible: false }));
   };
+
+  const showAlert = (config) => {
+    setAlertConfig({
+      visible: true,
+      ...config,
+    });
+  };
+
+
+  // Actualizar el formulario cuando cambia el estado de conductor
+  useEffect(() => {
+    reset(undefined, {
+      context: { isConductor }
+    });
+  }, [isConductor, reset]);
+
+  const onSubmit = async (data) => {
+    console.log(data);
+
+    try {
+      setIsLoading(true);
+
+      // Preparar los datos para la API
+      const userData = {
+        name: `${data.nombre} ${data.apellido}`,
+        email: data.correo?.trim(),
+        code: data.codigo,
+        password: data.password,
+        is_driver: isConductor,
+        role: 'Estudiante',
+        ...(isConductor && {
+          vehiclePlate: data.placa,
+          vehicleType: data.tipoVehiculo,
+        }),
+      };
+
+      await register(userData);
+
+      showAlert({
+        title: 'Cuenta creada',
+        message: 'Tu cuenta ha sido creada con éxito!',
+        type: 'success',
+        buttons: [
+          {
+            text: 'Continuar',
+            onPress: () => {
+              hideAlert();
+              navigation.navigate('Login');
+            },
+          },
+        ],
+      });
+    } catch (error) {
+      showAlert({
+        title: 'Error',
+        message: error.message || 'Error al crear la cuenta',
+        type: 'error',
+        buttons: [{ text: 'Entendido', onPress: hideAlert }],
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+
       <View style={styles.header}>
         <Text style={styles.headerText}>Crear cuenta</Text>
       </View>
-
-      {/* Contenido principal */}
       <View style={styles.content}>
-        {/* Botón Volver */}
+        {/* {__DEV__ && (
+          <View style={styles.debugInfo}>
+            <Text>Is Conductor: {String(isConductor)}</Text>
+            <Text>Form Errors: {JSON.stringify(errors, null, 2)}</Text>
+          </View>
+        )} */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -68,119 +142,78 @@ export const Signup = () => {
         </TouchableOpacity>
 
         <View style={styles.formContainer}>
-          {/* Campo Nombre */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="person"
-              size={24}
-              color="#003859"
-              style={styles.icon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre"
-              value={formData.nombre}
-              onChangeText={(text) =>
-                setFormData({ ...formData, nombre: text })
-              }
-            />
-          </View>
+          <InputField
+            control={control}
+            errors={errors}
+            name="nombre"
+            placeholder="Nombre"
+            icon="person"
+          />
 
-          {/* Campo Apellido */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="person"
-              size={24}
-              color="#003859"
-              style={styles.icon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Apellido"
-              value={formData.apellido}
-              onChangeText={(text) =>
-                setFormData({ ...formData, apellido: text })
-              }
-            />
-          </View>
+          <InputField
+            control={control}
+            errors={errors}
+            name="apellido"
+            placeholder="Apellido"
+            icon="person"
+          />
 
-          {/* Campo Correo institucional */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="mail"
-              size={24}
-              color="#003859"
-              style={styles.icon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Correo institucional"
-              keyboardType="email-address"
-              value={formData.correo}
-              onChangeText={(text) =>
-                setFormData({ ...formData, correo: text })
-              }
-            />
-          </View>
+          <InputField
+            control={control}
+            errors={errors}
+            name="correo"
+            placeholder="Correo institucional"
+            icon="mail"
+            keyboardType="email-address"
+          />
 
-          {/* Campo Código estudiantil */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="card"
-              size={24}
-              color="#003859"
-              style={styles.icon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Código estudiantil"
-              keyboardType="numeric"
-              value={formData.codigo}
-              onChangeText={(text) =>
-                setFormData({ ...formData, codigo: text })
-              }
-            />
-          </View>
+          <InputField
+            control={control}
+            errors={errors}
+            name="codigo"
+            placeholder="Código estudiantil"
+            icon="card"
+            keyboardType="numeric"
+          />
 
-          {/* Campo Contraseña */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="lock-closed"
-              size={24}
-              color="#003859"
-              style={styles.icon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Contraseña"
-              secureTextEntry
-              value={formData.password}
-              onChangeText={(text) =>
-                setFormData({ ...formData, password: text })
-              }
-            />
-          </View>
+          <InputField
+            control={control}
+            errors={errors}
+            name="password"
+            placeholder="Contraseña"
+            icon="lock-closed"
+            secureTextEntry
+          />
 
-          {/* Campo Confirmar contraseña */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="lock-closed"
-              size={24}
-              color="#003859"
-              style={styles.icon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirmar contraseña"
-              secureTextEntry
-              value={formData.confirmarPassword}
-              onChangeText={(text) =>
-                setFormData({ ...formData, confirmarPassword: text })
-              }
-            />
-          </View>
+          <InputField
+            control={control}
+            errors={errors}
+            name="confirmarPassword"
+            placeholder="Confirmar contraseña"
+            icon="lock-closed"
+            secureTextEntry
+          />
 
-          {/* Checkbox conductor */}
+          {isConductor && (
+            <>
+              <InputField
+                control={control}
+                errors={errors}
+                name="placa"
+                placeholder="Placa del vehículo"
+                icon="car"
+              />
+
+              <SelectField
+                control={control}
+                errors={errors}
+                name="tipoVehiculo"
+                placeholder="Seleccione tipo de vehículo"
+                icon="car-sport"
+                options={vehicleTypes}
+              />
+            </>
+          )}
           <View style={styles.checkboxContainer}>
             <Text style={styles.checkboxLabel}>¿Eres conductor?</Text>
             <TouchableOpacity
@@ -193,15 +226,24 @@ export const Signup = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Botón Crear cuenta */}
           <TouchableOpacity
             style={styles.createButton}
-            onPress={handleCreateAccount}
+            onPress={handleSubmit(onSubmit)}
           >
             <Text style={styles.createButtonText}>Crear cuenta</Text>
           </TouchableOpacity>
         </View>
+
+
       </View>
+
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+      />
     </View>
   );
 };
@@ -250,6 +292,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    gap: 11
   },
   inputContainer: {
     flexDirection: "row",

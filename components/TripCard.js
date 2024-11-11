@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
 import { StyleSheet } from 'react-native';
 
 export const TripCard = ({ location, time, seats, vehicleType }) => {
@@ -10,11 +12,11 @@ export const TripCard = ({ location, time, seats, vehicleType }) => {
             <Text style={styles.tripLocation}>{location}</Text>
 
             <View style={styles.tripDetails}>
-                <Ionicons
-                    name={vehicleType === 'car' ? 'car' : 'motorcycle'}
-                    size={24}
-                    color="#000"
-                />
+                {vehicleType === 'car' ? (
+                    <Ionicons name="car" size={24} color="#000" />
+                ) : (
+                    <FontAwesome name="motorcycle" size={24} color="black" />
+                )}
                 <View style={styles.timeBox}>
                     <Text>{time}</Text>
                 </View>

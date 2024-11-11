@@ -1,15 +1,71 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, Dimensions } from "react-native";
+import React, { useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  Dimensions,
+  Animated,
+  Easing
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
-const windowHeight = Dimensions.get("window").height;
 
+const windowHeight = Dimensions.get("window").height;
+const windowWidth = Dimensions.get("window").width;
 
 export const SearchModal = ({ visible, onClose }) => {
+  const slideAnim = useRef(new Animated.Value(-windowWidth * 0.8)).current;
+
+  useEffect(() => {
+    if (visible) {
+      // Animar entrada
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // Animar salida
+      Animated.timing(slideAnim, {
+        toValue: -windowWidth * 0.8,
+        duration: 300,
+        easing: Easing.in(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [visible]);
+
+  const handleClose = () => {
+    // Animar salida y luego cerrar
+    Animated.timing(slideAnim, {
+      toValue: -windowWidth * 0.8,
+      duration: 300,
+      easing: Easing.in(Easing.ease),
+      useNativeDriver: true,
+    }).start(() => {
+      onClose();
+    });
+  };
+
   return (
-    <Modal visible={visible} animationType="slide" transparent={true}>
+    <Modal visible={visible} transparent={true}>
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+        <TouchableOpacity
+          style={styles.backdrop}
+          activeOpacity={1}
+          onPress={handleClose}
+        />
+        <Animated.View
+          style={[
+            styles.modalContent,
+            {
+              transform: [{ translateX: slideAnim }],
+            },
+          ]}
+        >
           <View style={styles.searchHeader}>
             <Ionicons name="search" size={24} color="#003859" />
             <TextInput
@@ -17,7 +73,7 @@ export const SearchModal = ({ visible, onClose }) => {
               placeholder="¿Hacia donde se dirige?"
               placeholderTextColor="#666"
             />
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={handleClose}>
               <Ionicons name="close-circle" size={24} color="#003859" />
             </TouchableOpacity>
           </View>
@@ -37,7 +93,7 @@ export const SearchModal = ({ visible, onClose }) => {
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuItemText}>Menu item</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -46,8 +102,15 @@ export const SearchModal = ({ visible, onClose }) => {
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
+    flexDirection: 'row',
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
-
   },
   modalContent: {
     backgroundColor: "#003859",

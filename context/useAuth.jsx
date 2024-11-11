@@ -1,6 +1,8 @@
-// AuthContext.js
+// AuthContext.js actualizado
 import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authService } from "../services/auth.service";
+import { axiosInstance } from "../utils/axios";
 
 const AuthContext = createContext({
   isAuthenticated: false,
@@ -14,7 +16,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Cargar el estado de autenticación al iniciar la app
   useEffect(() => {
     loadAuthData();
   }, []);
@@ -26,6 +27,10 @@ export const AuthProvider = ({ children }) => {
         const authData = JSON.parse(authDataString);
         setIsAuthenticated(true);
         setUser(authData.user);
+        // Configurar el token en axios
+        if (authData.token) {
+          axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${authData.token}`;
+        }
       }
     } catch (error) {
       console.error("Error loading auth data:", error);
@@ -34,13 +39,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const saveAuthData = async (userData) => {
+  // Guardar los datos de autenticación en el dispositivo
+  const saveAuthData = async (userData, token) => {
     try {
       const authData = {
         user: userData,
+        token,
         timestamp: new Date().getTime(),
       };
       await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(authData));
+      // Configurar el token en axios
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } catch (error) {
       console.error("Error saving auth data:", error);
     }
@@ -49,6 +58,8 @@ export const AuthProvider = ({ children }) => {
   const clearAuthData = async () => {
     try {
       await AsyncStorage.removeItem(AUTH_KEY);
+      // Limpiar el token de axios
+      delete axiosInstance.defaults.headers.common['Authorization'];
     } catch (error) {
       console.error("Error clearing auth data:", error);
     }
@@ -56,19 +67,29 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // Aquí irían las validaciones con tu API
-      // Por ahora solo simulamos un login exitoso
-      if (email && password) {
-        const userData = { email };
+      const response = await authService.login({ email, password });
+      if (response.userType) {
         setIsAuthenticated(true);
-        setUser(userData);
-        await saveAuthData(userData);
+        setUser({ role: response.userType });
+        await saveAuthData(response.userType, response.token ? response.token : 'this is not a token');
         return true;
       }
       return false;
     } catch (error) {
       console.error("Error en login:", error);
-      return false;
+      throw error;
+    }
+  };
+
+  const register = async (userData) => {
+    try {
+      const response = await authService.register(userData);
+      console.log("Registro exitoso:", response);
+
+      return response;
+    } catch (error) {
+      console.error("Error en registro:", error);
+      throw error;
     }
   };
 
@@ -83,7 +104,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   if (loading) {
-    return null; // O un componente de loading
+    return null;
   }
 
   return (
@@ -93,6 +114,7 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         logout,
+        register,
         loading,
       }}
     >

@@ -6,12 +6,13 @@ import { NavigationContainer } from "@react-navigation/native";
 import Login from "./screen/Login";
 import Home from "./screen/Home";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import Drivers from "./screen/Drivers";
+import DriverHome from "./screen/Drivers";
 import { AuthProvider, useAuth } from "./context/useAuth";
 import { Signup } from "./screen/Signup";
+import CreateTrip from "./screen/createTrip";
 
 function NavigationStack() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const Stack = createStackNavigator();
 
   return (
@@ -19,22 +20,32 @@ function NavigationStack() {
       <Stack.Navigator>
         {isAuthenticated ? (
           <>
-            <Stack.Screen
-              name="Home"
-              component={Home}
-              options={{
-                headerShown: false
-              }}
-            />
-            <Stack.Screen
-              name="drivers"
-              component={Drivers}
-              options={{
-                headerStyle: { backgroundColor: "#003859" },
-                headerTintColor: "#fff",
-                headerTitleStyle: { fontWeight: "bold" },
-              }}
-            />
+            {user?.role === "Rider" ? (
+              <Stack.Screen
+                name="Home"
+                component={Home}
+                options={{
+                  headerShown: false
+                }}
+              />
+            ) : (
+              <>
+                <Stack.Screen
+                  name="drivers"
+                  component={DriverHome}
+                  options={{
+                    headerShown: false
+                  }}
+                />
+                <Stack.Screen
+                  name="createTrip"
+                  component={CreateTrip}
+                  options={{
+                    headerShown: false
+                  }}
+                />
+              </>
+            )}
           </>
         ) : (
           <>
